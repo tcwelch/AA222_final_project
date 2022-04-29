@@ -135,7 +135,7 @@ class Map():
         z = np.asarray(grayscale_img)
         z = z*((z_max - z_min)/255) + z_min*np.ones(np.shape(z))
         sigma = [4.5,4.5]
-        self.Z = sp.ndimage.filters.gaussian_filter(z, sigma, mode='constant')
+        self.Z = sp.ndimage.filters.gaussian_filter(z, sigma, mode='nearest')
         
         #computing scaling factor from index to meters
         dim = np.shape(self.Z)
