@@ -7,19 +7,19 @@ import scipy.ndimage
 
 #example of how to use plotting functions
 def main():
-    #---input data---
-    img = Image.open("heightmapper-1649890206078.png")
-    z_x_multiplier = 0.0710547
-    z_max = 4408 #meters
-    z_min = 317 #meters
-    title = "Mount Whitney and Death Valley"
+    # #---input data---
+    # img = Image.open("heightmapper-1649890206078.png")
+    # z_x_multiplier = 0.0710547
+    # z_max = 4408 #meters
+    # z_min = 317 #meters
+    # title = "Mount Whitney and Death Valley"
 
-    # #---Other Input Data---
-    # img = Image.open("heightmapper-1651194184194.png")
-    # z_x_multiplier = 0.1925720009140796
-    # z_max = 2814 #meters
-    # z_min = 1668 #meters
-    # title = "Random California"
+    #---Other Input Data---
+    img = Image.open("heightmapper-1651194184194.png")
+    z_x_multiplier = 0.1925720009140796
+    z_max = 2814 #meters
+    z_min = 1668 #meters
+    title = "Random California"
 
     #---testing plot functions---
     #transforming image to matrix
