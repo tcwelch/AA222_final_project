@@ -7,19 +7,19 @@ import scipy.ndimage
 
 #example of how to use plotting functions
 def main():
-    # #---input data---
-    # img = Image.open("heightmapper-1649890206078.png")
-    # z_x_multiplier = 0.0710547
-    # z_max = 4408 #meters
-    # z_min = 317 #meters
-    # title = "Mount Whitney and Death Valley"
+    #---input data---
+    img = Image.open("heightmapper-1649890206078.png")
+    z_x_multiplier = 0.0710547
+    z_max = 4408 #meters
+    z_min = 317 #meters
+    title = "Mount Whitney and Death Valley"
 
-    #---Other Input Data---
-    img = Image.open("heightmapper-1651194184194.png")
-    z_x_multiplier = 0.1925720009140796
-    z_max = 2814 #meters
-    z_min = 1668 #meters
-    title = "Random California"
+    # #---Other Input Data---
+    # img = Image.open("heightmapper-1651194184194.png")
+    # z_x_multiplier = 0.1925720009140796
+    # z_max = 2814 #meters
+    # z_min = 1668 #meters
+    # title = "Random California"
 
     #---testing plot functions---
     #transforming image to matrix
@@ -54,6 +54,7 @@ def main():
     plt.show()
 
     #---Testing neighbors function---
+    ## REVIEW THIS MECHANICS TO DERIVE Astar ##
     max_grade = 25 # As a %
     V = np.zeros((map.rows,map.cols))
     i = 0
@@ -70,10 +71,15 @@ class Path():
         self.h = []
         self.g = []
         self.d = []
+
+    #THIS IS WHAT I NEED TO USE MOST#
     def add(self,i,j):
         self.path.append((i,j))
+
+    #THIS IS WHAT I NEED TO USE# WILL NEED NEW PATH FOR EACH NEIGHBOR
     def copy(self):
         return Path([p for p in self.path])
+
     def plot_coords(self,fig,map,color,path_name):
         n = len(self.path)
         x = np.zeros((n,1))
@@ -144,16 +150,18 @@ class Map():
         self.width = z_max/z_x_multiplier
         self.length = self.width*self.rows/self.cols
 
+
     def grade(self,i_0,j_0,i_f,j_f):
         delta_elevation = self.Z[i_f,j_f] - self.Z[i_0,j_0]
         delta_coords = np.linalg.norm(np.array([(i_0-i_f)*self.length/self.rows,(j_0-j_f)*self.width/self.cols]),2)
         return delta_elevation/delta_coords
+
     def distance(self,i_0,j_0,i_f,j_f):
         delta_elevation = self.Z[i_f,j_f] - self.Z[i_0,j_0]
         delta_coords = np.linalg.norm(np.array([(i_0-i_f)*self.length/self.rows,(j_0-j_f)*self.width/self.cols]),2)
         return np.linalg.norm(np.array([delta_coords,delta_elevation]),2)
         
-
+## HERE WE CAN GET THE NEIGHBORS ## The priority will be the edge weights sum and the extra cost "to go" - i.e. the L2 norm.
 def neighbors(i,j,map,V,max_grade):
     actual_neighbors = []
     actual_neighbor_weights = []
