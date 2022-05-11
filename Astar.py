@@ -37,9 +37,10 @@ class Astar():
             return self.final_path 
 
         count = 0
-        while xy != self.xf:
+        while xy != self.xf and path != []:
             # print("NEW ROUND: ", count)
             print("Distance: ", math.sqrt((self.xf[0] - xy[0])**2+(self.xf[1] - xy[1])**2))
+            print("Path length: ", weight)
             pixels, weights = neighbors(xy[0], xy[1], self.image, self.visited, self.maxGrad)
             # print("here are the pixels for ", str(xy),":", str(pixels))
             if self.xf in pixels:
@@ -95,33 +96,33 @@ def main():
 
     map = Map(img,z_x_multiplier,z_max,z_min)
 
-    #---testing path class---
-    #creating path
-    i_0 = 100
-    j_0 = 100
-    i_f = 1000
-    j_f = 1000
-    p = Path([(i_0,j_0)])
-    i = np.linspace(i_0,i_f,np.abs(i_f - i_0)+1,dtype=int)
-    j = np.linspace(j_0,j_f,np.abs(j_f - j_0)+1,dtype=int)
-    for idx in range(np.abs(i_0-i_f)):
-            p.add(i[idx],j[idx])
-    p.add(i_f,j_f)
-    #plotting path
-    fig = plt.figure()
-    fig = plot_heatmap(map, title, fig)
-    fig = plot_contours(map,title,fig)
-    p.plot_coords(fig,map,'red','sample_path')
+    ## ---testing path class---
+    # creating path
+    # i_0 = 100
+    # j_0 = 100
+    # i_f = 1000
+    # j_f = 1000
+    # p = Path([(i_0,j_0)])
+    # i = np.linspace(i_0,i_f,np.abs(i_f - i_0)+1,dtype=int)
+    # j = np.linspace(j_0,j_f,np.abs(j_f - j_0)+1,dtype=int)
+    # for idx in range(np.abs(i_0-i_f)):
+    #         p.add(i[idx],j[idx])
+    # p.add(i_f,j_f)
+    # #plotting path
+    # fig = plt.figure()
+    # fig = plot_heatmap(map, title, fig)
+    # fig = plot_contours(map,title,fig)
+    # p.plot_coords(fig,map,'red','sample_path')
 
-    #---Testing path aux plotting functions--#
-    fig = plt.figure()
-    p.plot_elev(fig,map,c='blue')
-    fig = plt.figure()
-    p.plot_grade(fig,map,c='blue')
-    plt.show()
+    # #---Testing path aux plotting functions--#
+    # fig = plt.figure()
+    # p.plot_elev(fig,map,c='blue')
+    # fig = plt.figure()
+    # p.plot_grade(fig,map,c='blue')
+    # plt.show()
 
     # Run Astar
-    astar = Astar(map, 25) #gradient taken from util.py
+    astar = Astar(map, 10) #gradient taken from util.py
     #astar_path = astar.runAstart((np.random.randint(0, astar.imageDimensions[0]), np.random.randint(0, astar.imageDimensions[1])), (np.random.randint(0, astar.imageDimensions[0]), np.random.randint(0, astar.imageDimensions[1])))
     astar_path = astar.runAstart((100,100), (1000,1000))
 
@@ -131,6 +132,9 @@ def main():
     fig = plot_heatmap(astar.image, title, fig)
     fig = plot_contours(astar.image,title,fig)
     pathGiven.plot_coords(fig,map,'red','astar solution')
+
+    fig = plt.figure()
+    pathGiven.plot_grade(fig,map,c='blue')
     # plt.plot(astar.xi[0], astar.xi[0], color = "pink", linewidth = 3)
     # plt.plot(astar.xf[0], astar.xi[1], color = "pink", linewidth = 3)
     # plt.plot(astar_path[0],astar_path[1], color = "red", linewidth = .75)
@@ -142,7 +146,8 @@ if __name__ == '__main__':
 
 
 ## TO DO: 
-# NEED TO IMPLEMENT A FUNCTION THAT ELIMINATES NONVIABLE PATH
+# I need to integrate Path class that Tom made!
+# Plot all paths!
 
 
 

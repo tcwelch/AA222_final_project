@@ -171,7 +171,7 @@ def neighbors(i,j,map,V,max_grade):
         j_n = j + neighbor[1]
         if (i_n >= 0 and i_n < map.rows) and (j_n >= 0 and j_n < map.cols)\
              and (not V[i_n,j_n]) and not (i_n == i and j_n == j):
-            delta_elevation = map.Z[i,j] - map.Z[i_n,j_n]
+            delta_elevation = map.Z[i_n,j_n] - map.Z[i,j]
             delta_coords = np.linalg.norm(np.array([(i-i_n)*map.length/map.rows,(j-j_n)*map.width/map.cols]),2)
             abs_grade = np.abs(delta_elevation/delta_coords)
             if abs_grade <= max_grade/100:
