@@ -1,25 +1,26 @@
 import numpy as np
 import itertools
 import matplotlib.pyplot as plt
+import math
 from PIL import Image
 import scipy as sp
 import scipy.ndimage
 
 #example of how to use plotting functions
 def main():
-    #---input data---
-    img = Image.open("heightmapper-1649890206078.png")
-    z_x_multiplier = 0.0710547
-    z_max = 4408 #meters
-    z_min = 317 #meters
-    title = "Mount Whitney and Death Valley"
+    # #---input data---
+    # img = Image.open("heightmapper-1649890206078.png")
+    # z_x_multiplier = 0.0710547
+    # z_max = 4408 #meters
+    # z_min = 317 #meters
+    # title = "Mount Whitney and Death Valley"
 
-    # #---Other Input Data---
-    # img = Image.open("heightmapper-1651194184194.png")
-    # z_x_multiplier = 0.1925720009140796
-    # z_max = 2814 #meters
-    # z_min = 1668 #meters
-    # title = "Random California"
+    #---Other Input Data---
+    img = Image.open("heightmapper-1651194184194.png")
+    z_x_multiplier = 0.1925720009140796
+    z_max = 2814 #meters
+    z_min = 1668 #meters
+    title = "Random California"
 
     #---testing plot functions---
     #transforming image to matrix
@@ -33,12 +34,12 @@ def main():
 
     #---testing path class---
     #creating path
-    i_0 = 100
-    j_0 = 100
-    i_f = 1000
-    j_f = 1000
+    i_0 = 500
+    j_0 = 500
+    i_f = 500
+    j_f = 1500
     p = Path([(i_0,j_0)])
-    i = np.linspace(i_0,i_f,np.abs(i_f - i_0)+1,dtype=int)
+    i = i_0*np.ones((np.abs(j_f - j_0)+1,)) #i = np.linspace(i_0,i_f,np.abs(i_f - i_0)+1,dtype=int)
     j = np.linspace(j_0,j_f,np.abs(j_f - j_0)+1,dtype=int)
     for idx in range(np.abs(i_0-i_f)):
             p.add(i[idx],j[idx])
@@ -86,8 +87,8 @@ class Path():
         y = np.zeros((n,1))
         for idx in range(n):
             i,j = self.path[idx]
-            x[idx] = i
-            y[idx] = j
+            y[idx] = i
+            x[idx] = j
         plt.plot(x*map.width/map.cols,y*map.length/map.rows,label=path_name,c=color)
         plt.legend()
         return plt.gcf()
@@ -156,7 +157,7 @@ class Map():
         delta_coords = np.linalg.norm(np.array([(i_0-i_f)*self.length/self.rows,(j_0-j_f)*self.width/self.cols]),2)
         return delta_elevation/delta_coords
 
-    def distance(self,i_0,j_0,i_f,j_f):
+    def distance(self,i_0,j_0,i_f,j_f): #switch these - i is rows, j is columns
         delta_elevation = self.Z[i_f,j_f] - self.Z[i_0,j_0]
         delta_coords = np.linalg.norm(np.array([(i_0-i_f)*self.length/self.rows,(j_0-j_f)*self.width/self.cols]),2)
         return np.linalg.norm(np.array([delta_coords,delta_elevation]),2)
@@ -180,6 +181,30 @@ def neighbors(i,j,map,V,max_grade):
                 actual_neighbor_weights.append(distance)
     return actual_neighbors,actual_neighbor_weights
 
+## ADDING THIS!! 
+# def neighbors_asCrowFlies(i,j,map,V,max_grade, xf):
+#     actual_neighbors = []
+#     actual_neighbor_weights = []
+#     possible_neighbors = itertools.product([-1,1,0], repeat=2)
+#     for neighbor in possible_neighbors:
+#         i_n = i + neighbor[0]
+#         j_n = j + neighbor[1]
+#         if (i_n >= 0 and i_n < map.rows) and (j_n >= 0 and j_n < map.cols)\
+#              and (not V[i_n,j_n]) and not (i_n == i and j_n == j):
+#             delta_elevation = map.Z[i_n,j_n] - map.Z[i,j]
+#             delta_coords = np.linalg.norm(np.array([(i-i_n)*map.length/map.rows,(j-j_n)*map.width/map.cols]),2)
+#             abs_grade = np.abs(delta_elevation/delta_coords)
+#             if abs_grade <= max_grade/100:
+#                 distance = np.linalg.norm(np.array([delta_coords,delta_elevation]),2)
+#                 actual_neighbors.append((i_n,j_n))
+#                 actual_neighbor_weights.append(distance)
+
+#                 ## HERE IS MY MODIFICATION TO GET DISTANCE FROM FINAL LOCATION: ##
+#                 fromFinalDistance = math.sqrt((xf[0] - i)**2+(xf[1] - j)**2)
+#                 actual_neighbor_weights.append(fromFinalDistance)
+
+#     return actual_neighbors, actual_neighbor_weights
+
 
 def plot_heatmap(map,title,fig):
     #plot heatmap
@@ -190,6 +215,19 @@ def plot_heatmap(map,title,fig):
     plt.ylabel("Y (meters)")
     plt.title(title)
     return plt.gcf()
+
+def plot_heatmap_visted(map,title, width, length):
+    #plot heatmap
+    plt.imshow(map,extent=[0,width,0,length])
+    cbar = plt.colorbar()
+    cbar.set_label('Altitude (meters) \n ',labelpad = 20, rotation=270)
+    plt.xlabel("X (meters)")
+    plt.ylabel("Y (meters)")
+    plt.title(title)
+    return plt.gcf()
+
+def plot_gradient_heatmap():
+    pass
 
 
 def plot_contours(map,title,fig):  

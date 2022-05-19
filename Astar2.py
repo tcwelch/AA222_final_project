@@ -6,6 +6,7 @@ from matplotlib.pyplot import plot, draw, show
 import math
 import time
 from drawnow import drawnow
+from copy import deepcopy
 
 from util import *
 
@@ -42,13 +43,14 @@ class Astar():
             self.final_path = np.array(self.final_path)
             return self.final_path 
 
-        # fig = plt.figure()
-        # ax = fig.add_subplot(111)
-        # ax = plot_heatmap(self.image, "live-tracking", fig)
-        # ax = plot_contours(self.image,"live-tracking",fig)
+        figureLive = plt.figure()
+        plt.title("best paths found throughout")
+        # ax = figureLive.add_subplot(111)
+        figureLive = plot_heatmap(self.image, "live-tracking", figureLive)
+        figureLive = plot_contours(self.image,"live-tracking",figureLive)
         # myline = plt.plot(xy[0], xy[1])
-        # fig.canvas.draw()
-        # plt.show(block=False)
+        # figureLive.canvas.draw()
+        plt.show(block=False)
 
         count = 0
         while xy != self.xf and path != None:
@@ -57,7 +59,15 @@ class Astar():
             print("Path length: ", weight)
             print("Queue length: ", str(len(self.paths.queue)))
 
+            self.visited[xy[0]][xy[1]] = 1
+            #print("Distance from function: ", self.image.distance(xy[1], xy[0], self.xf[1], self.xf[0]))
+            weight = weight - self.image.distance(xy[1], xy[0], self.xf[1], self.xf[0])
+
+            #WHICH MODE SHOULD WE USE:::
             pixels, weights = neighbors(xy[0], xy[1], self.image, self.visited, self.maxGrad)
+            #as crow flies analysis here:
+            # pixels, weights = neighbors_asCrowFlies(xy[0], xy[1], self.image, self.visited, self.maxGrad, self.xf)
+
             # print("here are the pixels for ", str(xy),":", str(pixels))
             if self.xf in pixels:
                 print("finished!")
@@ -74,13 +84,13 @@ class Astar():
             else:
                 for i, pixel in enumerate(pixels):
                     # print("HERE: ", pixel)
-                    self.visited[pixel[0]][pixel[1]] = 1
+                    # self.visited[pixel[0]][pixel[1]] = 1
                     p = path.copy()
                     p.append(pixel) #problem here!
-                    insert = (weight + weights[i], p)
+                    insert = (weight + weights[i] + self.image.distance(pixel[1], pixel[0], self.xf[1], self.xf[0]), p)
                     self.paths.put(insert)
 
-            # plotting the paths under considerations
+            #plotting the paths under considerations
             # insert = self.paths.queue[0]
             # path = insert[1]
             # path = Path(path)
@@ -102,15 +112,36 @@ class Astar():
                 new_path_weight = insertFromQueue[0]
                 new_xy = new_path[-1]
                 fromFinalDistance = math.sqrt((self.xf[0] - new_xy[0])**2+(self.xf[1] - new_xy[1])**2)
+
                 if fromFinalDistance < self.best_path_distance: ### CHANGE TO THE PATH THAT GETS YOU THE CLOSEST!!! ## OR, PLOT ALL THE PATHS
                     self.best_path = new_path
                     self.best_path_distance = fromFinalDistance
+                    #bestPathtoPlot = Path(self.best_path)
+                    # ax = plt.gca()
+                    # lines = ax.lines
+                    # print(len(lines))
+                    # if len(lines) != 0:
+                    #     ax.lines.remove(lines[0]) # remove lines before plotting them again
+                    # bestPathtoPlot.plot_coords(figureLive,self.image, 'red', "closest solution so far")
+                    # plt.pause(0.01)
+                    ## SHOULD WE GRAPH SELF.BEST_PATH so far?
+
+                ax = plt.gca()
+                lines = ax.lines
+                pathtoPlot = Path(path)
+                bestPathtoPlot = Path(self.best_path)
+                if len(lines) != 0:
+                    ax.lines.remove(lines[1]) # remove both lines before plotting them again
+                    ax.lines.remove(lines[0])
+                bestPathtoPlot.plot_coords(figureLive,self.image, 'red', "closest solution so far")
+                pathtoPlot.plot_coords(figureLive,self.image, 'orange', "other paths")
+                plt.pause(1e-5)
                 
                 path = new_path
                 weight = new_path_weight
                 xy = new_xy
             else:
-                path = None #this will break the while loop while reutinrg self.finalpath later
+                path = None #this will break the while loop on next step and return self.finalpath later
             
             count += 1
 
@@ -161,8 +192,8 @@ def main():
     # plt.show()
 
     # Run Astar
-    astar = Astar(map, 10) #gradient taken from util.py
-    xi, xf = (1200,2000), (1200,3000)
+    astar = Astar(map, 25) #gradient taken from util.py
+    xi, xf = (1600,1200), (2900,1200)
 
     figure = plt.figure()
     figure = plot_heatmap(map, title, figure)
@@ -171,7 +202,8 @@ def main():
     testing.plot_coords(figure,map,'red','beginning and end')
     plt.scatter([xi[0],xf[0]], [xi[1], xf[1]], s = 20, color = 'red', marker = "x")
     plt.title("locations")
-    plt.show()
+    plt.show(block = False)
+    plt.pause(.01)
 
     astar_path = astar.runAstart(xi, xf)
 
@@ -188,35 +220,52 @@ def main():
     # plt.plot(astar.xf[0], astar.xi[1], color = "pink", linewidth = 3)
     # plt.plot(astar_path[0],astar_path[1], color = "red", linewidth = .75)
 
-    fig = plt.figure()
-    fig = plot_heatmap(astar.image, title, fig)
-    fig = plot_contours(astar.image,title,fig)
-    while len(astar.paths.queue) != 0:
-        insert = astar.paths.get()
-        path = insert[1]
-        path = Path(path)
-        if insert[0] == -1:
-            path.plot_coords(fig,map,'red','astar solution')
-        else:
-            path.plot_coords(fig,map)
+    # fig = plt.figure()
+    # fig = plot_heatmap(astar.image, title, fig)
+    # fig = plot_contours(astar.image,title,fig)
+    # while len(astar.paths.queue) != 0:
+    #     insert = astar.paths.get()
+    #     path = insert[1]
+    #     path = Path(path)
+    #     if insert[0] == -1:
+    #         path.plot_coords(fig,map,'red','astar solution')
+    #     else:
+    #         path.plot_coords(fig,map)
 
-
-
-    plt.figure()
-    plt.imshow(astar.visited)
-    plt.colorbar()
-    plt.scatter([astar.xi[0],astar.xf[0]], [astar.xi[1], astar.xf[1]], s = 30)
+    figure2 = plt.figure()
+    figure2 = plot_heatmap_visted(astar.visited, "visited", map.width, map.length)
+    plt.scatter([astar.xi[0],astar.xf[0]], [astar.xi[1], astar.xf[1]], color = "red", s = 30)
+    testing = Path([xi,xf])
+    testing.plot_coords(figure,map,'orange','straight-line beginning to end')
     plt.title("visited pixels")
     plt.show()
 
 if __name__ == '__main__':
+    # queue = pq()
+    # A = (3,1, (1,2))
+    # B = (3,2, (2,1))
+    # C = (2,3, (3,3))
+    # queue.put(A)
+    # queue.put(B)
+    # queue.put(C)
+    # print(queue.get())
+    # print(queue.get())
+    # print(queue.get())
 	main()
 
 
 
 ## TO DO: 
-# I need to integrate Path class that Tom made!
-# Plot all paths!
+# I need to integrate Path class that Tom made! - unnecessary?
+# Plot all paths! - DONE with visited map
+# Need to change such that neighbors are not considered 'visited', but point at the end of a path IS considered visited. This may fix all our issues. - DISCUSSED AND IMPLEMENTED
+# Need to think about a way to consider paths that are going in a certain direction first - DISCUSSED was already meant to be you dumbass.
+# Need to consider paths without removing them from the queue (could be solved by removing, copying into while looping, pushing back)
+
+## CHECKLIST POINTS:
+# Astar either is overconstrained
+# Astar takes too long with too much memory
+# Feel like we need a second heuristic (considering paths that get closest to final location first)
 
 
 
@@ -225,7 +274,7 @@ if __name__ == '__main__':
 # new path1 with just startnode
 # add path1 to pqueue
 # while pqueue is not empty and end is not visited
-# get an L2 norm of end point to the end
+    # get an L2 norm of end point to the end
 #Pqueue the path with highest priority and dequeue
 #update priority based on crowfly distance
 #look at neighboring nodes and add into new queue as new paths
