@@ -10,8 +10,6 @@ from copy import deepcopy
 
 from util import *
 
-#PSEUDO CODE
-
 class Astar():
     def __init__(self, image, max_grade):
         self.image = image
@@ -46,14 +44,14 @@ class Astar():
 
         figureLive = plt.figure()
         plt.title("best paths found throughout")
-        # ax = figureLive.add_subplot(111)
-        # figureLive = plot_heatmap(self.image, "live-tracking", figureLive)
-        # figureLive = plot_contours(self.image,"live-tracking",figureLive)
-        # myline = plt.plot(xy[0], xy[1])
-        # figureLive.canvas.draw()
-        # testing = Path([self.xi,self.xf])
-        # testing.plot_coords(figureLive,self.image,'purple','beginning and end')
-        # plt.show(block=False)
+        ax = figureLive.add_subplot(111)
+        figureLive = plot_heatmap(self.image, "live-tracking", figureLive)
+        figureLive = plot_contours(self.image,"live-tracking",figureLive)
+        myline = plt.plot(xy[0], xy[1])
+        figureLive.canvas.draw()
+        testing = Path([self.xi,self.xf])
+        testing.plot_coords(figureLive,self.image,'purple','beginning and end')
+        plt.show(block=False)
 
         count = 1
         while xy != self.xf and path != None:
@@ -130,14 +128,14 @@ class Astar():
                 if fromFinalDistance < self.best_path_distance: ### CHANGE TO THE PATH THAT GETS YOU THE CLOSEST!!! ## OR, PLOT ALL THE PATHS
                     self.best_path = new_path
                     self.best_path_distance = fromFinalDistance
-                    #bestPathtoPlot = Path(self.best_path)
-                    # ax = plt.gca()
-                    # lines = ax.lines
-                    # print(len(lines))
-                    # if len(lines) != 0:
-                    #     ax.lines.remove(lines[0]) # remove lines before plotting them again
-                    # bestPathtoPlot.plot_coords(figureLive,self.image, 'red', "closest solution so far")
-                    # plt.pause(0.01)
+                    bestPathtoPlot = Path(self.best_path)
+                    ax = plt.gca()
+                    lines = ax.lines
+                    print(len(lines))
+                    if len(lines) != 0:
+                        ax.lines.remove(lines[0]) # remove lines before plotting them again
+                    bestPathtoPlot.plot_coords(figureLive,self.image, 'red', "closest solution so far")
+                    plt.pause(0.01)
                     ## SHOULD WE GRAPH SELF.BEST_PATH so far?
 
                 ## THIS IS THE CORRECT PLOTTING HERE!! ##
@@ -166,11 +164,11 @@ class Astar():
         return self.final_path
 
 def main():
-    img = Image.open("heightmapper-1649890206078.png")
-    z_x_multiplier = 0.0710547
-    z_max = 4408 #meters
-    z_min = 317 #meters
-    title = "Mount Whitney and Death Valley"
+    # img = Image.open("heightmapper-1649890206078.png")
+    # z_x_multiplier = 0.0710547
+    # z_max = 4408 #meters
+    # z_min = 317 #meters
+    # title = "Mount Whitney and Death Valley"
 
     # img = Image.open("heightmapper-1651194184194.png")
     # z_x_multiplier = 0.1925720009140796
@@ -178,11 +176,27 @@ def main():
     # z_min = 1668 #meters
     # title = "Random California"
 
-    xi, xf = (200,500), (200,1500)
+    img = Image.open("kings_cannyon.png")
+    z_x_multiplier = 0.106372604
+    z_max = 3150 #meters
+    z_min = 468 #meters
+    title = "Kings Canyon"
+
+    # xi, xf = (200,500), (200,1500)
+    xi, xf = (885,2100), (760,300)
 
     map = Map(img,z_x_multiplier,z_max,z_min)
     print(map.rows)
     print(map.cols)
+
+    # x1,y1 = xi
+    # x2,y2 = xf
+    # figure = plt.figure()
+    # figure = plot_heatmap(map, title, figure)
+    # figure = plot_contours(map,title,figure)
+    # plt.plot(x1*map.width/map.cols,y1*map.length/map.rows,'o')
+    # plt.plot(x2*map.width/map.cols,y2*map.length/map.rows,'o')
+    # plt.show()
 
     ## ---testing path class---
     # creating path
@@ -212,8 +226,8 @@ def main():
     # plt.show()
 
     # Run Astar
-    astar = Astar(map, 10) #gradient taken from util.py
-    xi, xf = (200,200), (200,500)
+    astar = Astar(map, 25) #gradient taken from util.py
+    # xi, xf = (200,200), (200,500)
 
     figure = plt.figure()
     figure = plot_heatmap(map, title, figure)
@@ -260,7 +274,6 @@ def main():
     testing.plot_coords(figure2,map,'orange','straight-line beginning to end')
     plt.title("visited pixels")
     plt.show()
-    plt.pause(.01)
 
 if __name__ == '__main__':
     # queue = pq()
